@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Telegram Bot</title>
+</head>
+<body>
+    <h1>Telegram Bot</h1>
+
+    <script>
+        // Set your bot's API token
+        const botToken = '6065002582:AAESebqks2LGO1bjuwyBhorsWtiyT6tmCco';
+
+        // Define the base URL for Telegram API requests
+        const baseURL = `https://api.telegram.org/bot${botToken}/`;
+
+        // Function to send a message using Telegram API
+        function sendMessage(chatID, message) {
+            const url = `${baseURL}sendMessage?chat_id=${chatID}&text=${encodeURIComponent(message)}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => console.log('Message sent:', message))
+                .catch(error => console.error('Error sending message:', error));
+        }
+
+        // Your webhook request handler
+        function handleRequest(request) {
+            const update = JSON.parse(request.body);
+
+            // Get the chat ID and the message text
+            const chatID = update.message.chat.id;
+            const messageText = update.message.text;
+
+            // Process the incoming message
+            if (messageText === '/start') {
+                // Send a welcome message
+                sendMessage(chatID, 'Welcome to your Telegram bot!');
+            } else if (messageText === '/chatid') {
+                sendMessage(chatID, chatID);
+            } else if (messageText === '/help') {
+                // Send a help message
+                sendMessage(chatID, 'This is a help message. You can add more commands and functionality.');
+            } else {
+                // Send a default message for unrecognized commands
+                sendMessage(chatID, 'Sorry, I don\'t understand that command. Type /help for assistance.');
+            }
+        }
+
+        // Set up your server to handle the webhook requests
+        function server(request, response) {
+            let data = '';
+
+            request.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            request.on('end', () => {
+                request.body = data;
+                handleRequest(request);
+                response.end();
+            });
+        }
+
+        // Start listening for webhook requests
+        const serverInstance = http.createServer(server);
+        serverInstance.listen(8080, () => {
+            console.log('Server is listening on port 8080');
+        });
+    </script>
+</body>
+</html>
+  
