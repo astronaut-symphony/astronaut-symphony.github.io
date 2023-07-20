@@ -11,9 +11,10 @@
     <script>
         const headers = new Headers()
         headers.append("Content-Type", "application/json")
-        
+
+        const API_TOKEN = "default"
         const body = {
-            "test": "event"
+            "test": API_TOKEN
         }
         
         const options = {
